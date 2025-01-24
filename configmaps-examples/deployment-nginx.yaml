@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-tls
+spec:
+  selector:
+    matchLabels:
+      run: nginx-tls
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: nginx-tls
+    spec:
+      containers:
+        - image: nginx
+          imagePullPolicy: IfNotPresent
+          name: nginx-tls
+          resources:
+            requests:
+              cpu: 0.1
+              memory: 256Mi
+            limits:
+              cpu: 2
+              memory: 512Mi
+          ports:
+            - containerPort: 80
+              name: http
+            - containerPort: 443
+              name: https
+          volumeMounts:
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: nginx-tls
+              mountPath: /etc/nginx/tls
+      volumes:
+        - name: nginx-config-volume
+          configMap:
+            name: nginx-config
+        - name: nginx-tls
+          secret:
+            secretName: web-tls
+            items:
+              - key: tls.crt
+                path: certificate.crt
+              - key: tls.key
+                path: private.key
