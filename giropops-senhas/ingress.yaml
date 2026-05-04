@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: giropops-senhas
+  namespace: giropops-senhas
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: senhas.k8s.jeferson.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: giropops-senhas
+                port:
+                  number: 5000
+  tls:
+    - hosts:
+        - senhas.k8s.jeferson.dev
+      secretName: giropops-senhas-tls
